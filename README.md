@@ -6,3 +6,4 @@ To build with ARGS: docker build --build-arg TZ=<Whatever> --build-arg USERNAME=
 
 My preferred command to run this: docker run -itv /:/tmp/real_root uberhumus/vim-anywhere:latest vi <Filename>
 
+IMPORTANT: This Docker container generates a password in the build process, and therefore has to be built locally.
