@@ -2,19 +2,15 @@ FROM ubuntu:20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 ARG TZ=Asia/Jerusalem
+ARG USERNAME=yotam
 RUN apt-get update; \
     apt-get dist-upgrade -y && \
     apt-get autoremove -y && \
     apt-get autoclean -y && \
-    apt-get install -y vim tmux bash-completion shellcheck ssh git pylint flake8 python sudo expect curl cmake build-essential python3-dev golang npm openjdk-11-jre exuberant-ctags && \
-    echo vim-anywhere > /etc/hostname
-
-ARG USERNAME=yotam
-RUN PASSWORD=$(openssl rand -base64 16 | tr -d "=") && \
+    apt-get install -y vim tmux bash-completion shellcheck ssh git pylint flake8 python sudo expect curl cmake build-essential python3-dev golang npm openjdk-11-jre exuberant-ctags python3-pip && \
     useradd -m -s /bin/bash $USERNAME && \
     usermod -aG sudo $USERNAME && \ 
-    echo "$USERNAME:$PASSWORD" | chpasswd && \
-    echo $PASSWORD
+    echo vim-anywhere > /etc/hostname
 
 WORKDIR /home/$USERNAME
 COPY .vimrc .
@@ -26,5 +22,11 @@ RUN git clone https://github.com/tpope/vim-fugitive.git/ && \
 WORKDIR /home/$USERNAME/.vim/pack/plugins/start/YouCompleteMe
 RUN git submodule update --init --recursive && \
     python3 install.py --all && \
-    chown -R $USERNAME:$USERNAME /home/$USERNAME
+    chown -R $USERNAME:$USERNAME /home/$USERNAME && \
+    PASSWORD=$(openssl rand -base64 16 | tr -d "=") && \
+    echo "$USERNAME:$PASSWORD" | chpasswd && \
+    echo $PASSWORD
+WORKDIR /home/$USERNAME
+COPY requirements.txt .
+RUN pip3 install -r /home/$USERNAME/requirements.txt
 USER $USERNAME
